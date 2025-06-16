@@ -4,6 +4,11 @@ terraform {
       source  = "digitalocean/digitalocean"
       version = "~> 2.0"
     }
+
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
   }
 }
 
@@ -71,6 +76,49 @@ variable "volume_label" {
   default     = "supabase-data"
 }
 
+variable "do_supabase_image" {
+  description = "DigitalOcean image for Supabase droplet"
+  type        = string
+}
+
+variable "do_supabase_size" {
+  description = "DigitalOcean droplet size for Supabase"
+  type        = string
+}
+
+variable "private_key_path" {
+  description = "Path to your private SSH key"
+  type        = string
+  default     = "~/.ssh/id_rsa"
+}
+
+variable "do_ssh_key_name" {
+  description = "SSH key name"
+  type        = string
+}
+
+variable "spaces_access_key" {
+  description = "Spaces access key (S3-compatible)"
+  type        = string
+}
+
+variable "spaces_secret_key" {
+  description = "Spaces secret key (S3-compatible)"
+  type        = string
+}
+
+variable "spaces_region" {
+  description = "Spaces region (e.g., 'fra1', 'nyc3')"
+  type        = string
+  default     = "fra1"
+}
+
+variable "spaces_bucket_name" {
+  description = "Name of the Spaces bucket"
+  type        = string
+  default     = "supabase-assets"
+}
+
 provider "digitalocean" {
   token = var.do_access_token
 }
@@ -102,4 +150,25 @@ module "volume" {
   volume_size_gb = var.volume_size_gb
   volume_filesystem_type = var.volume_filesystem_type
   volume_label = var.volume_label
+}
+
+module "supabase" {
+  source = "./modules/droplet"
+  do_access_token = var.do_access_token
+  do_project_id = digitalocean_project.supabase.id
+  do_supabase_size = var.do_supabase_size
+  private_key_path = var.private_key_path
+  do_supabase_image = var.do_supabase_image
+  do_ssh_key_name = var.do_ssh_key_name
+  do_supabase_region = var.region
+  do_domain = var.do_domain
+}
+
+module "spaces" {
+  source = "./modules/spaces"
+  do_access_token = var.do_access_token
+  spaces_access_key = var.spaces_access_key
+  spaces_bucket_name = var.spaces_bucket_name
+  spaces_region = var.region
+  spaces_secret_key = var.spaces_secret_key
 }

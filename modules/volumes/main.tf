@@ -64,3 +64,7 @@ resource "digitalocean_project_resources" "project_resources" {
   project   = var.do_project_id
   resources = [digitalocean_volume.supabase_volume.urn]
 }
+
+output "volume_id" {
+  value = digitalocean_volume.supabase_volume.id
+}

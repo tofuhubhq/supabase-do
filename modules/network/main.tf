@@ -41,10 +41,18 @@ resource "digitalocean_domain" "supabase_domain" {
   # ip   = "203.0.113.10"  # Optional: sets an A record for root domain
 }
 
+resource "digitalocean_reserved_ip" "supabase_ip" {
+  region = var.do_vpc_region
+}
+
 output "domain_name" {
   value = digitalocean_domain.supabase_domain.name
 }
 
 output "domain_resource_id" {
   value = digitalocean_domain.supabase_domain.id
+}
+
+output "supabase_reserved_ip" {
+  value = digitalocean_reserved_ip.supabase_ip.ip_address
 }
